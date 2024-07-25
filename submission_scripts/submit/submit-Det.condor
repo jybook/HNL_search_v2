@@ -1,0 +1,16 @@
+Executable = /data/user/lfischer/hnl_analysis/submission_scripts/process/process_Det.py
+Arguments = --gcdfile $(gcdfile) --infile $(infile) --outfile $(outfile) -e $(domeff) -f $(filenum) --holeice $(holeice) --identifier_out $(identifier_out) -m $(icemodel) -n $(noise)
+
+should_transfer_files = yes
+
+output = /scratch/lfischer/condor_output/job-Det_$(identifier_out).$(Cluster)_$(Process).out
+error = /scratch/lfischer/condor_error/job-Det_$(identifier_out).$(Cluster)_$(Process).err
+log = /scratch/lfischer/condor_logs/job-Det_$(identifier_out).$(Cluster)_$(Process).log
+
+notification = never
+#getenv = True
+
+request_memory = 3000
+request_cpus = 1
+
+queue

@@ -1,0 +1,16 @@
+Executable = /data/user/lfischer/hnl_analysis/submission_scripts/process/process_Phot.py
+Arguments = -i $(infile) -o $(outfile) -r $(RUNNUM) -l $(file_number) -t -m $(icemodel) --holeice $(holeice)
+
+should_transfer_files = yes
+
+output = /scratch/lfischer/condor_output/job-Phot_$(identifier_out).$(Cluster)_$(Process).out
+error = /scratch/lfischer/condor_error/job-Phot_$(identifier_out).$(Cluster)_$(Process).err
+log = /scratch/lfischer/condor_logs/job-Phot_$(identifier_out).$(Cluster)_$(Process).log
+
+notification = never
+#getenv = True
+
+request_gpus = 1
+request_memory = $(ram)
+
+queue

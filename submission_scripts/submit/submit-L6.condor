@@ -1,0 +1,18 @@
+Log = /scratch/lfischer/FLERCNN_i3_predict/level6/$(LOGNAME)_$(identifier_out)_$(Cluster)_$(Process).log
+Output = /scratch/lfischer/FLERCNN_i3_predict/level6/$(LOGNAME)_$(identifier_out)_$(Cluster)_$(Process).out
+Error = /scratch/lfischer/FLERCNN_i3_predict/level6/$(LOGNAME)_$(identifier_out)_$(Cluster)_$(Process).error
+
+Universe  = vanilla
+Request_cpus = 1
+Request_memory = 3GB
+Request_disk = 250MB
+#getenv = True
++TransferOutput = ""
+ShouldTransferFiles = YES 
+
+Requirements = (OpSysMajorVer =?= 7)
+
+Executable = /data/user/lfischer/hnl_analysis/submission_scripts/process/process_flercnn_L6.sh
+Arguments = $(INFILE) $(OUTFILE) $(GCD) $(HDF5FILE)
+
+Queue

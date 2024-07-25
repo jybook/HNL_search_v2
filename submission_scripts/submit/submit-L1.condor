@@ -1,0 +1,16 @@
+Executable = /data/user/lfischer/hnl_analysis/submission_scripts/process/process_L1.py
+Arguments = --gcd $(gcdfile) --input $(infile) --output $(outfile) --photonicsdir=/cvmfs/icecube.opensciencegrid.org/data/photon-tables/ --identifier_out $(identifier_out)
+
+should_transfer_files = yes
+
+output = /scratch/lfischer/condor_output/job-L1_$(identifier_out).$(Cluster)_$(Process).out
+error = /scratch/lfischer/condor_error/job-L1_$(identifier_out).$(Cluster)_$(Process).err
+log = /scratch/lfischer/condor_logs/job-L1_$(identifier_out).$(Cluster)_$(Process).log
+
+notification = never
+#getenv = True
+
+request_memory = 4000
+request_cpus = 1
+
+queue

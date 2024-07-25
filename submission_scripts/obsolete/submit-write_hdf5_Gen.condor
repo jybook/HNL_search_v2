@@ -1,0 +1,15 @@
+Executable = /data/user/lfischer/hnl_analysis/submission_scripts/process/process_write_hdf5_Gen.py 
+Arguments = -i $(infile)
+
+should_transfer_files = yes
+
+output = /scratch/lfischer/condor_output/job-write_hdf5_Gen.$(Cluster)_$(Process).out
+error = /scratch/lfischer/condor_error/job-write_hdf5_Gen.$(Cluster)_$(Process).err
+log = /scratch/lfischer/condor_logs/job-write_hdf5_Gen.$(Cluster)_$(Process).log
+
+notification = never
+getenv = True
+request_memory = 1000
+request_cpus = 1
+
+queue

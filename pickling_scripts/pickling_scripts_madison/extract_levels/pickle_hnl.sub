@@ -1,0 +1,14 @@
+Executable = /data/user/lfischer/hnl_analysis/pickling_scripts/pickling_scripts_madison/extract_levels/pickle_hnl_level.py
+Arguments = --level $(level) -vrl
+
+should_transfer_files = yes
+
+output = /scratch/lfischer/condor_output/pickle_190607_$(level).$(Cluster)_$(Process).out
+error = /scratch/lfischer/condor_error/pickle_190607_$(level).$(Cluster)_$(Process).err
+log = /scratch/lfischer/condor_logs/pickle_190607_$(level).$(Cluster)_$(Process).log
+
+notification = never
+request_memory = 8000
+request_cpus = 1
+
+queue

@@ -1,0 +1,19 @@
+Executable = /scratch/lfischer/submission/process_Gen-OSG.py
+Arguments = --seed $(seed) --outfile $(outfile) --Emin $(Emin) --Emax $(Emax) --index $(index) --nEvents $(nEvents) -m $(HNL_mass)
+
+environment = "X509_USER_PROXY=x509up_u35951"
+
+transfer_input_files = /tmp/x509up_u35951
+
++TransferOutput=""
+
+output = /scratch/lfischer/condor_output/job-Gen_$(identifier_out).$(Cluster)_$(Process).out
+error = /scratch/lfischer/condor_error/job-Gen_$(identifier_out).$(Cluster)_$(Process).err
+log = /scratch/lfischer/condor_logs/job-Gen_$(identifier_out).$(Cluster)_$(Process).log
+
+notification = never
+
+request_cpus = 1
+request_memory = $(ram)
+
+queue

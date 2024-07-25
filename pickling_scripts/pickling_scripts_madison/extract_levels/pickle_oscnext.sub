@@ -1,0 +1,17 @@
+Executable = /data/user/lfischer/hnl_analysis/pickling_scripts/pickling_scripts_madison/extract_levels/pickle_oscnext_set_level.py
+Arguments = --level $(level) --settype $(type) --setnumber $(number) -vrl
+
+should_transfer_files = yes
+
+output = /scratch/lfischer/condor_output/pickle_$(number)_$(level).$(Cluster)_$(Process).out
+error = /scratch/lfischer/condor_error/pickle_$(number)_$(level).$(Cluster)_$(Process).err
+log = /scratch/lfischer/condor_logs/pickle_$(number)_$(level).$(Cluster)_$(Process).log
+
++AccountingGroup="1_week.lfischer"
+
+notification = never
+#request_memory = 20000
+request_memory = 25GB
+request_cpus = 1
+
+queue

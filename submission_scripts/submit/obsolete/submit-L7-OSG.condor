@@ -1,0 +1,21 @@
+Log = /scratch/lfischer/FLERCNN_i3_predict/level7/$(LOGNAME)_$(identifier_out)_$(Cluster)_$(Process).log
+Output = /scratch/lfischer/FLERCNN_i3_predict/level7/$(LOGNAME)_$(identifier_out)_$(Cluster)_$(Process).out
+Error = /scratch/lfischer/FLERCNN_i3_predict/level7/$(LOGNAME)_$(identifier_out)_$(Cluster)_$(Process).error
+
+environment = "X509_USER_PROXY=x509up_u35951"
+transfer_input_files = /tmp/x509up_u35951
+
+Universe  = vanilla
+Request_gpus = 1
+Request_memory = 4GB
+Request_disk = 250MB
+#getenv = True
++TransferOutput = ""
+ShouldTransferFiles = YES
+
+Requirements = (OpSysMajorVer =?= 7)
+
+Executable = /scratch/lfischer/submission/process_flercnn_L7-OSG.sh
+Arguments = $(INFILE) $(OUTDIR) $(OUTFILE)
+
+Queue

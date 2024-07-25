@@ -1,0 +1,19 @@
+Executable = /scratch/lfischer/submission/process_Phot-OSG.py
+Arguments = -i $(infile) -o $(outfile) -r $(RUNNUM) -l $(file_number) -t -m $(icemodel) --holeice $(holeice) --osg True
+
+environment = "X509_USER_PROXY=x509up_u35951"
+
+transfer_input_files = /tmp/x509up_u35951
+
++TransferOutput=""
+
+output = /scratch/lfischer/condor_output/job-Phot_$(identifier_out).$(Cluster)_$(Process).out
+error = /scratch/lfischer/condor_error/job-Phot_$(identifier_out).$(Cluster)_$(Process).err
+log = /scratch/lfischer/condor_logs/job-Phot_$(identifier_out).$(Cluster)_$(Process).log
+
+notification = never
+
+request_gpus = 1
+request_memory = $(ram)
+
+queue

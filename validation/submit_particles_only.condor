@@ -1,0 +1,71 @@
+Executable = /data/user/jbook/I3_HNL_Search/submission_scripts/process/process_Gen_particles_only.py
+
+Arguments = --seed 121222 --outfile /data/user/jbook/I3_HNL_Search/validation/testfiles_particle_only/Gen_10GeV.i3.zst --nEvents 25000 --HNL_mass 1.0
+
+should_transfer_files = yes
+
+output = /scratch/jbook/condor_output/job-Gen_1GeV.out
+error = /scratch/jbook/condor_error/job-Gen_1GeV.err
+log = /scratch/jbook/condor_logs/job-Gen_1GeV.log
+
+notification = never
+getenv = True
+
+request_memory = 2000
+request_cpus = 1
+
+queue
+
+Executable = /data/user/jbook/I3_HNL_Search/submission_scripts/process/process_Gen_particles_only.py
+
+Arguments = --seed 121222 --outfile /data/user/jbook/I3_HNL_Search/validation/testfiles_particle_only/Gen_01Gev.i3.zst --nEvents 25000 --HNL_mass 0.1
+
+should_transfer_files = yes
+
+output = /scratch/jbook/condor_output/job-Gen_01Gev.out
+error = /scratch/jbook/condor_error/job-Gen_01Gev.err
+log = /scratch/jbook/condor_logs/job-Gen_01Gev.log
+
+notification = never
+getenv = True
+
+request_memory = 2000
+request_cpus = 1
+
+queue
+
+Executable = /data/user/jbook/I3_HNL_Search/submission_scripts/process/process_Gen_particles_only.py
+
+Arguments = --seed 121222 --outfile /data/user/jbook/I3_HNL_Search/validation/testfiles_particle_only/Gen_03Gev.i3.zst --nEvents 25000 --HNL_mass 0.3
+
+should_transfer_files = yes
+
+output = /scratch/jbook/condor_output/job-Gen_03Gev.out
+error = /scratch/jbook/condor_error/job-Gen_03Gev.err
+log = /scratch/jbook/condor_logs/job-Gen_03Gev.log
+
+notification = never
+getenv = True
+
+request_memory = 2000
+request_cpus = 1
+
+queue
+
+Executable = /data/user/jbook/I3_HNL_Search/submission_scripts/process/process_Gen_particles_only.py
+
+Arguments = --seed 121222 --outfile /data/user/jbook/I3_HNL_Search/validation/testfiles_particle_only/Gen_06Gev.i3.zst --nEvents 25000 --HNL_mass 0.6
+
+should_transfer_files = yes
+
+output = /scratch/jbook/condor_output/job-Gen_06Gev.out
+error = /scratch/jbook/condor_error/job-Gen_06Gev.err
+log = /scratch/jbook/condor_logs/job-Gen_06Gev.log
+
+notification = never
+getenv = True
+
+request_memory = 2000
+request_cpus = 1
+
+queue

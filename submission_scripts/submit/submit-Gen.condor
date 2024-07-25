@@ -1,0 +1,16 @@
+Executable = /data/user/jbook/I3_HNL_Search/submission_scripts/process/process_Gen.py
+Arguments = --seed $(seed) --outfile $(outfile) --Emin $(Emin) --Emax $(Emax) --index $(index) --nEvents $(nEvents) -m $(HNL_mass)
+
+should_transfer_files = yes
+
+output = /scratch/jbook/condor_output/job-Gen_$(identifier_out).$(Cluster)_$(Process).out
+error = /scratch/jbook/condor_error/job-Gen_$(identifier_out).$(Cluster)_$(Process).err
+log = /scratch/jbook/condor_logs/job-Gen_$(identifier_out).$(Cluster)_$(Process).log
+
+notification = never
+getenv = True
+
+request_memory = $(ram)
+request_cpus = 1
+
+queue

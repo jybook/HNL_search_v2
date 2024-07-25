@@ -1,0 +1,18 @@
+Log = /scratch/lfischer/FLERCNN_i3_predict/level7/$(LOGNAME)_$(identifier_out)_$(Cluster)_$(Process).log
+Output = /scratch/lfischer/FLERCNN_i3_predict/level7/$(LOGNAME)_$(identifier_out)_$(Cluster)_$(Process).out
+Error = /scratch/lfischer/FLERCNN_i3_predict/level7/$(LOGNAME)_$(identifier_out)_$(Cluster)_$(Process).error
+
+Universe  = vanilla
+Request_gpus = 1
+Request_memory = 4GB
+Request_disk = 250MB
+#getenv = True
++TransferOutput = ""
+ShouldTransferFiles = YES
+
+Requirements = (OpSysMajorVer =?= 7) && (CUDADeviceName =!= "NVIDIA A40")
+
+Executable = /data/user/lfischer/hnl_analysis/submission_scripts/process/process_flercnn_L7.sh
+Arguments = $(INFILE) $(OUTDIR) $(OUTFILE)
+
+Queue

@@ -1,0 +1,15 @@
+Executable = /data/user/lfischer/hnl_analysis/submission_scripts/process/process_oscnext_L3_L4_L5.py
+Arguments = -t $(datatype) -i $(infile) -g $(gcdfile) -o $(outfile) --hdf5file $(hdf5file) -l 4
+
+should_transfer_files = yes
+
+output = /scratch/lfischer/condor_output/job-L4_$(identifier_out).$(Cluster)_$(Process).out
+error = /scratch/lfischer/condor_error/job-L4_$(identifier_out).$(Cluster)_$(Process).err
+log = /scratch/lfischer/condor_logs/job-L4_$(identifier_out).$(Cluster)_$(Process).log
+
+notification = never
+#getenv = True
+request_memory = 4000
+request_cpus = 1
+
+queue
