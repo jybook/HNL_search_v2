@@ -1,0 +1,124 @@
+import numpy as np
+
+
+configfile: "/n/holylfs05/LABS/arguelles_delgado_lab/Everyone/jbook/snkmk_test/config/hnl_19000.yaml"
+
+
+ARRAY_NUMS = np.arange(
+    5, 6, 1
+)  # numpy gives ranges on a half-open interval, so this gives 1-2.
+FILE_NUMS = np.arange(1, 3, 1)
+
+
+rule all:
+    input:
+        expand(
+            "{output_prefix}{set_number}/L2/{array_number}_{file_number}.i3.zst",
+            output_prefix=config["output_prefix"],
+            set_number=config["set_number"],
+            array_number=ARRAY_NUMS,
+            file_number=FILE_NUMS,
+        ),
+
+
+rule L2:
+    input:
+        expand(
+            "{output_prefix}{set_number}/L1/{{array_number}}_{{file_number}}.i3.zst",
+            output_prefix=config["output_prefix"],
+            set_number=config["set_number"],
+        ),
+    output:
+        expand(
+            "{output_prefix}{set_number}/L2/{{array_number}}_{{file_number}}.i3.zst",
+            output_prefix=config["output_prefix"],
+            set_number=config["set_number"],
+        ),
+    shell:
+        "export PYTHONPATH=/n/home00/jbook/.local/lib/python3.7/site-packages:$PYTHONPATH && source /n/holylfs05/LABS/arguelles_delgado_lab/Everyone/jbook/i3/build/env-shell-snkmk.sh python /n/holylfs05/LABS/arguelles_delgado_lab/Everyone/jbook/HNL_search_v2/submission_scripts/process/process_L2.py --identifier_out={config[set_number]} --input {input} --output {output}"
+
+
+rule L1:
+    input:
+        expand(
+            "{output_prefix}{set_number}/Det/{{array_number}}_{{file_number}}.i3.zst",
+            output_prefix=config["output_prefix"],
+            set_number=config["set_number"],
+        ),
+    output:
+        expand(
+            "{output_prefix}{set_number}/L1/{{array_number}}_{{file_number}}.i3.zst",
+            output_prefix=config["output_prefix"],
+            set_number=config["set_number"],
+        ),
+    shell:
+        "export PYTHONPATH=/n/home00/jbook/.local/lib/python3.7/site-packages:$PYTHONPATH && source /n/holylfs05/LABS/arguelles_delgado_lab/Everyone/jbook/i3/build/env-shell-snkmk.sh python /n/holylfs05/LABS/arguelles_delgado_lab/Everyone/jbook/HNL_search_v2/submission_scripts/process/process_L1.py --identifier_out={config[set_number]} --input {input} --output {output}"
+
+
+rule detector:
+    input:
+        expand(
+            "{output_prefix}{set_number}/Phot/{{array_number}}_{{file_number}}.i3.zst",
+            output_prefix=config["output_prefix"],
+            set_number=config["set_number"],
+        ),
+    output:
+        expand(
+            "{output_prefix}{set_number}/Det/{{array_number}}_{{file_number}}.i3.zst",
+            output_prefix=config["output_prefix"],
+            set_number=config["set_number"],
+        ),
+    params:
+        seed=lambda wc: int(wc.array_number) * 1000 + int(wc.file_number),
+    # conda:
+    #     "snkmk_test_env.yaml"
+    # shell:
+    #     "python /n/holylfs05/LABS/arguelles_delgado_lab/Everyone/jbook/HNL_search_v2/submission_scripts/process/process_Det.py --runnumber {params.seed} --infile {input} --outfile {output}"
+    # script:
+        # "scripts/submit_det.sh"
+    shell:
+        "export PYTHONPATH=/n/home00/jbook/.local/lib/python3.7/site-packages:$PYTHONPATH && source /n/holylfs05/LABS/arguelles_delgado_lab/Everyone/jbook/i3/build/env-shell.sh  python /n/holylfs05/LABS/arguelles_delgado_lab/Everyone/jbook/HNL_search_v2/submission_scripts/process/process_Det.py --runnumber {params.seed} --infile {input} --outfile {output} && echo 'python run'"
+
+rule photon:
+    input:
+        expand(
+            "{output_prefix}{set_number}/Gen/{{array_number}}_{{file_number}}.i3.zst",
+            output_prefix=config["output_prefix"],
+            set_number=config["set_number"],
+        ),
+    output:
+        expand(
+            "{output_prefix}{set_number}/Phot/{{array_number}}_{{file_number}}.i3.zst",
+            output_prefix=config["output_prefix"],
+            set_number=config["set_number"],
+        ),
+    params:
+        seed=lambda wc: int(wc.array_number) * 1000 + int(wc.file_number),
+    resources:
+        slurm_partition="arguelles_delgado_gpu",#"gpu_requeue",# 
+        slurm_extra="'--gres=gpu:nvidia_a100_1g.10gb:1'",
+        runtime=300,
+    shell:
+        "sbatch --export=SEED={params.seed},OUTFILE_fullpath={output},INFILE_fullpath={input} scripts/photon_jobs.sbatch"
+    # shell:
+    #     "sbatch --export=RUN_N={wildcards.array_number},FILE_N={wildcards.file_number},SET_N={config[set_number]},nEVENTS={config[n_events]},HNL_MASS={config[hnl_mass]},OUTDIR={config[output_prefix]},OUTFILE=placeholder.i3.zst scripts/photon_jobs.sbatch"
+    # shell:
+    #     "sbatch --export=RUN_N={wildcards.array_number},FILE_N={wildcards.file_number},SET_N={config[set_number]},EMIN=$EMIN,EMAX=$EMAX,INDEX=$INDEX,nEVENTS={config[n_events]},HNL_MASS={config[hnl_mass]},OUTDIR={config[output_prefix]},OUTFILE=placeholder.i3.zst scripts/photon_jobs.sbatch"
+    # conda:
+    #     "snkmk_test_env.yaml"
+    # shell: # This version fails to appropriately request GPUs
+    #     "/n/holylfs05/LABS/arguelles_delgado_lab/Everyone/jbook/i3/build/env-shell.sh python /n/holylfs05/LABS/arguelles_delgado_lab/Everyone/jbook/HNL_search_v2/submission_scripts/process/process_Phot.py --runnumber {params.seed} --infile {input} --outfile {output} -t"
+
+rule generation:
+    output:
+        expand(
+            "{output_prefix}{set_number}/Gen/{{array_number}}_{{file_number}}.i3.zst",
+            output_prefix=config["output_prefix"],
+            set_number=config["set_number"],
+        ),
+    params:
+        mass=config["hnl_mass"],
+        seed=lambda wc: int(wc.array_number) * 1000 + int(wc.file_number),
+        n_events={config["n_events"]},
+    shell:
+        "source /n/holylfs05/LABS/arguelles_delgado_lab/Everyone/jbook/i3/build/env-shell.sh python /n/holylfs05/LABS/arguelles_delgado_lab/Everyone/jbook/HNL_search_v2/submission_scripts/process/process_Gen.py --seed {params.seed} --outfile {output} --nEvents {config[n_events]} -m {config[hnl_mass]}"

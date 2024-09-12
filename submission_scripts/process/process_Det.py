@@ -1,5 +1,5 @@
-#!/bin/sh /cvmfs/icecube.opensciencegrid.org/users/BeyondStandardModel/bsm-py2-v3.1.1-1/icetray-start-standard
-#METAPROJECT /data/user/lfischer/software/oscnext_hnl/build/
+#!/bin/sh /cvmfs/icecube.opensciencegrid.org/py3-v4.2.1/icetray-start
+#METAPROJECT /n/holylfs05/LABS/arguelles_delgado_lab/Everyone/jbook/i3/build
 
 
 ### The Detector Level simulation processing script ###
@@ -24,7 +24,7 @@ from icecube import (
     sim_services,
     DOMLauncher,
     DomTools,
-    genie_icetray,
+    genie_reader,
     clsim,
     trigger_sim,
 )
@@ -86,11 +86,11 @@ HDF5_KEYS = [
     "casc1_true_azimuth",
     "casc1_true_time",
     "nan_decay_energy",
-    # weights
-    "LeptonInjectorWeight",
-    "LifetimeWeight_1e-03",
-    "OneWeight",
-    "ReferenceWeight_1e-03",
+#     # weights
+#     "LeptonInjectorWeight",
+#     "LifetimeWeight_1e-03",
+#     "OneWeight",
+#     "ReferenceWeight_1e-03",
 ]
 
 # remove duplicates from the HDF5 keys
@@ -315,7 +315,7 @@ def main():
     parser.add_option(
         "-o",
         "--outfile",
-        default="/data/ana/BSM/HNL/MC/test_files/test_output_Det.i3.zst",
+        default="/n/holylfs05/LABS/arguelles_delgado_lab/Lab/HNL_MC/test_files/test_output_Det.i3.zst",
         dest="OUTFILE",
         help="Write output to OUTFILE (.i3{.gz} format) [default: %default]",
     )
@@ -368,7 +368,7 @@ def main():
     parser.add_option(
         "-l",
         "--holeice",
-        default="angsens/as.flasher_p1_0.30_p2_-1",
+        default="ANGSENS/angsens/as.flasher_p1_0.30_p2_-1",
         dest="HOLEICE",
         help="Pick the hole ice parameterization, corresponds to a file name path relative to $I3_SRC/ice-models/resources/models/ [default: %default]",
     )
@@ -395,7 +395,7 @@ def main():
             crap += " "
         parser.error(crap)
 
-    t0 = time.clock()
+    t0 = time.perf_counter()
     print('Starting ...')
 
     osg = options.osg
@@ -421,14 +421,14 @@ def main():
         outfile = str("gsiftp://gridftp.icecube.wisc.edu" + options.OUTFILE)
         outfile_temp = str(os.getcwd() + "/" + outfile.split("/")[-1])
     else:
-        temp_dir = os.path.join(
-            "/data/ana/BSM/HNL/MC/scripts/temp/", options.identifier_out
+        temp_dir = os.path.join("/n/holylfs05/LABS/arguelles_delgado_lab/Lab/HNL_MC/temp/", options.identifier_out
         )
         if not os.path.exists(temp_dir):
             os.makedirs(temp_dir)
         outfile_temp = os.path.join(temp_dir, str(options.OUTFILE.split("/")[-1]))
         gcdfile = options.GCDFILE
         infiles = [gcdfile, options.INFILE]
+        print(infiles)
 
 
     print("Using RUNNR: {}".format(options.RUNNUMBER))
@@ -436,7 +436,7 @@ def main():
     print("Using hole ice: {}".format(options.HOLEICE))
     print(
         "Looking for ice model in {}".format(
-            os.path.expandvars("$I3_SRC/ice-models/resources/models/")
+            os.path.expandvars("$I3_SRC/ice-models/resources/models/ICEMODEL/")
         )
     )
     if options.ICEMODEL == "" or options.ICEMODEL == None:
@@ -446,13 +446,13 @@ def main():
         icemodel_path = None
     else:
         icemodel_path = os.path.expandvars(
-            "$I3_SRC/ice-models/resources/models/{}".format(options.ICEMODEL)
+            "$I3_SRC/ice-models/resources/models/ICEMODEL/{}".format(options.ICEMODEL)
         )
         if os.path.isdir(icemodel_path):
             print("Folder with ice model found: ", icemodel_path)
         else:
             print("Error! No ice model with such name found in:")
-            print(os.path.expandvars("$I3_SRC/ice-models/resources/models/"))
+            print(os.path.expandvars("$I3_SRC/ice-models/resources/models/ICEMODEL"))
             exit()
     print("Ice model path: {}".format(icemodel_path))
 
@@ -499,6 +499,7 @@ def main():
     tray.AddModule("I3GeometryDecomposer", "I3ModuleGeoMap")
 
     gcd_file = dataio.I3File(gcdfile)
+    print(type(dataio.I3File(gcdfile)))
 
 
     tray.AddSegment(
@@ -516,7 +517,7 @@ def main():
         HoleIceParameterization=os.path.expandvars(
             "$I3_SRC/ice-models/resources/models/%s" % options.HOLEICE
         ),
-        GCDFile=gcd_file,
+        GCDFile=gcdfile,#gcd_file,
     )
 
 
@@ -532,6 +533,8 @@ def main():
     )
 
     mcpe_to_pmt = "MCPESeriesMap"
+#     mcpe_to_pmt = "testName"
+    
     if options.NOISE == "poisson":
         print("Error! Poisson noise is not supported anymore. Exiting")
         exit()
@@ -545,8 +548,8 @@ def main():
             OutputHitSeriesMapName=mcpe_to_pmt + "_withNoise",
             StartWindow=-11 * I3Units.microsecond,
             EndWindow=11 * I3Units.microsecond,
-            IceTop=False,
-            InIce=True,
+#             IceTop=False,
+#             InIce=True,
             ScaleFactor=1.0,
             DeepCoreScaleFactor=1,
             DOMsToExclude=[],  # This will be cleaned later by DOM launch cleaner
@@ -659,9 +662,9 @@ def main():
 
         tray.AddSegment(
             I3SimHDFWriter,
-            output = outfile_hdf5_temp,
-            existing_header=True,
-            keys = HDF5_KEYS,
+            output=outfile_hdf5_temp,
+#             existing_header=True,
+            keys=HDF5_KEYS,
         )
 
     tray.AddModule("TrashCan", "adios")
@@ -676,7 +679,7 @@ def main():
         os.system(str("mv {} {}".format(outfile_temp, options.OUTFILE)))
         os.system(str("mv {} {}".format(outfile_hdf5_temp, options.OUTFILE.replace('.i3.zst',".hdf5"))))
 
-    t1 = time.clock()
+    t1 = time.perf_counter()
 
     print("Time it took: {}s".format(t1-t0))
     print('done ...')

@@ -1,0 +1,13 @@
+# Make a copy of this profile for each simulation set. They should be named hnl_xxxxx where xxxxx is the set number
+
+output_prefix: /n/holylfs05/LABS/arguelles_delgado_lab/Lab/HNL_MC/ #change this to your MC location
+
+set_number: 11112
+# e_min: # We use default values for these most of the time
+# e_max:
+# index:
+# d_min:
+# d_max:
+n_files: 100
+n_events: 10000 # number of events per file - right now this is handled by the snakefile. Will be modified soon.
+hnl_mass: 0.1 # GeV

@@ -189,21 +189,6 @@ def store_weights(frame):
     return True
 
 
-# function to skip nonphysical frames
-def skip_nonphysical_frames(frame):
-    '''
-    Skip frames that are unphysical.
-    Inputs:
-        The frame
-    Returns:
-        True if the frame can be accessed (and therefore has contents)
-        False otherwise
-    '''
-    if not frame.Has("EventProperties"):
-        return False
-    event_properties = frame["EventProperties"]
-    return event_properties.physical
-
 ########## End
 
 
@@ -216,35 +201,14 @@ def main():
 
     usage = "usage: %prog [options]"
     parser = OptionParser(usage)
-    parser.add_option("-s", "--seed", dest="seed", type="int", help="Require a unique number under 4e9 for each job")
     parser.add_option("-o", "--outfile", dest="outfile", type="string", help="Outfile name")
-    parser.add_option("-i", "--index", dest="index", type="string", default = "2", help="Spectral index, positive [default: %default]")
-    parser.add_option("--Emin", dest="Emin", type="string", default = "2", help="Min total energy (neutrino energy) to simulate in GeV [default: %default]")
-    parser.add_option("--Emax", dest="Emax", type="string", default = "10000", help="Maximum total energy to simulate in GeV [default: %default]")
-    parser.add_option("--Dmin", dest="Dmin", type="string", default = "1", help="Min possible decay length to simulate (m) [default: %default]")
-    parser.add_option("--Dmax", dest="Dmax", type="string", default = "1000", help="Max possible decay length to simulate (m) [default: %default]")
-    parser.add_option("-n", "--nEvents", dest="nEvents", type="string", default = "100000", help="Number of total events [default: %default]")
-    parser.add_option("--Zmin", dest="Zmin", type="string", default = "80", help="Min zenith in degrees, 90 is horizon [default: %default]")
-    parser.add_option("--Zmax", dest="Zmax", type="string", default = "180", help="Max zenith in degrees, 180 is core [default: %default]")
-    parser.add_option("--radius", dest="radius", type="string", default = "600", help="The radius of the disk to radomly inject on in meters. [default: %default]")
-    parser.add_option("--length", dest="length", type="string", default = "600", help="The extra end cap length of the cylinder to randomly inject in. [default: %default]")
+    parser.add_option("-i", "--infile", dest="infile", type="string", help="Infile name")
+    parser.add_option("-m","--mass", dest="HNL_mass", type="string", help="Mass of the HNL", default="0.3")
     parser.add_option("--hdf5", action="store_false", dest="write_hdf5", default=True, help="Write hdf5 file [default: %default]")
-    parser.add_option("-m", "--HNL_mass", dest="HNL_mass", type="string", help="HNL mass for single mass samples, in GeV. [default %default]")
 
     options,args = parser.parse_args()
-
-    seed 		= int(options.seed)
+    infile 		= options.infile
     outfile 	= options.outfile
-    Emin 		= float(options.Emin)
-    Emax 		= float(options.Emax)
-    Dmin 		= float(options.Dmin)
-    Dmax 		= float(options.Dmax)
-    index 		= float(options.index)
-    nEvents 	= int(options.nEvents)
-    Zmin 		= float(options.Zmin)
-    Zmax 		= float(options.Zmax)
-    radius 		= float(options.radius)
-    length		= float(options.length)
     HNL_mass    = float(options.HNL_mass)
     write_hdf5  = options.write_hdf5
 
@@ -253,10 +217,7 @@ def main():
     print('Starting ...')
 
     print('Outfile: {}'.format(outfile))
-    print('Energy range: ({}-{})GeV'.format(Emin, Emax))
-    print('Index: {}'.format(index))
-    print('nEvents: {}'.format(nEvents))
-    print('HNL_mass: {}'.format(HNL_mass))
+    
     if(write_hdf5):print('Also writing hdf5 file')
 
     # The .lic file contains the simulation data used for weighting.
@@ -273,60 +234,7 @@ def main():
 
     # now start the actual tray processing
     tray = I3Tray()
-
-    tray.context["I3FileStager"] = dataio.get_stagers()
-
-    tray.AddService("I3GSLRandomServiceFactory")(("Seed",seed))
-    tray.AddService("I3EarthModelServiceFactory","Earth")
-    tray.AddModule("I3InfiniteSource")(("Stream",icetray.I3Frame.DAQ))
-
-    # Set the cross section. Generate half of the events as neutrinos and the other half as antineutrinos.
-    tray.AddModule("MultiLeptonInjector")(
-            ("EarthModel","Earth"),
-            ("Generators",[
-                LeptonInjector.injector(
-                    NEvents    = int(nEvents/2),
-                    FinalType1 = dataclasses.I3Particle.ParticleType.HNL,
-                    FinalType2 = dataclasses.I3Particle.ParticleType.Hadrons,
-                    DoublyDifferentialCrossSectionFile 	= os.path.join(xs_location, "dsdxdy-nu-N-nc-GRV98lo_patched_central.fits"),
-                    TotalCrossSectionFile 				= os.path.join(xs_location, "sigma-nu-N-nc-GRV98lo_patched_central.fits"),
-                    Ranged     = False)
-                ,
-                LeptonInjector.injector(
-                    NEvents    = int(nEvents/2),
-                    FinalType1 = dataclasses.I3Particle.ParticleType.HNLBar,
-                    FinalType2 = dataclasses.I3Particle.ParticleType.Hadrons,
-                    DoublyDifferentialCrossSectionFile  = os.path.join(xs_location, "dsdxdy-nubar-N-nc-GRV98lo_patched_central.fits"),
-                    TotalCrossSectionFile               = os.path.join(xs_location, "sigma-nubar-N-nc-GRV98lo_patched_central.fits"),
-                    Ranged     = False)
-                ]),
-            ("MinimumEnergy", 	Emin * I3Units.GeV),
-            ("MaximumEnergy", 	Emax * I3Units.GeV),
-            ("MinimumDecayLength", 	Dmin * I3Units.meter),
-            ("MaximumDecayLength", 	Dmax * I3Units.meter),
-            ("MinimumZenith", 	Zmin * I3Units.deg),
-            ("MaximumZenith", 	Zmax * I3Units.deg),
-            ("PowerlawIndex", 	index),
-            # ("InjectionRadius",	radius * I3Units.meter),  # these are only for ranged mode
-            # ("EndcapLength",	length * I3Units.meter),  # these are only for ranged mode
-            ("CylinderRadius",	radius * I3Units.meter),
-            ("CylinderHeight",	length * I3Units.meter),
-            ("HNL_mass",        HNL_mass * I3Units.GeV),
-            ("CylinderCenter", -300. * I3Units.meter),  # just fix the z center of DC here. Can remove for simulation ouside deepcore.
-            )
-
-	# get configuration out put ready for staging (slightly hacky)
-    if 'I3FileStager' in tray.context:
-        stager = tray.context['I3FileStager']
-        generation_data_file_path = stager.GetWriteablePath(generation_data_file_path)
-    
-    tray.AddModule("InjectionConfigSerializer", OutputPath = str(generation_data_file_path))
-
-    # skip empty frames
-    tray.AddModule(
-        skip_nonphysical_frames,
-        streams=[icetray.I3Frame.DAQ]
-    )
+    tray.AddModule("I3Reader", "reader", FilenameList=infile)
 
     ##### add weighting functions #####
 
@@ -403,20 +311,5 @@ def main():
 
 if __name__ == '__main__':
 
-    # import cProfile, pstats, io
-    # from pstats import Stats
-    # pr = cProfile.Profile()
-    # pr.enable()
-    # main()
-    # pr.disable()
-
-    # stats_name = 'mystats_no_weighting_cvmfs_build.stats'
-
-    # pr.dump_stats(stats_name)
-
-    # with open(stats_name.replace('stats', 'txt'), 'wt') as output:
-    #     stats = Stats(stats_name, stream=output)
-    #     stats.sort_stats('cumulative', 'time')
-    #     stats.print_stats()
 
     main()

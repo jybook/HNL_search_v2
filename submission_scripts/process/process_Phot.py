@@ -1,9 +1,8 @@
-#!/bin/sh /cvmfs/icecube.opensciencegrid.org/users/BeyondStandardModel/bsm-py2-v3.1.1-1/icetray-start-standard
-#METAPROJECT /cvmfs/icecube.opensciencegrid.org/users/lfischer/oscnext_hnl_meta/build/
+#!/bin/sh /cvmfs/icecube.opensciencegrid.org/py3-v4.2.1/icetray-start
+#METAPROJECT /data/user/jbook/i3/build/
 
 
 ### The Photon Level simulation processing script ###
-
 import time
 
 import os
@@ -281,7 +280,7 @@ def main():
     parser.add_option(
         "-a",
         "--holeice",
-        default="angsens/as.flasher_p1_0.30_p2_-1",
+        default="ANGSENS/angsens/as.flasher_p1_0.30_p2_-1",
         dest="HOLEICE",
         help="Pick the hole ice parameterization, corresponds to a file name path relative to $I3_SRC/ice-models/resources/models/ [default: %default]",
     )
@@ -311,7 +310,7 @@ def main():
             crap += " "
         parser.error(crap)
 
-    t0 = time.clock()
+    t0 = time.perf_counter() #time.clock()
     print('Starting ...')
 
     osg = options.osg
@@ -361,7 +360,7 @@ def main():
     # # Set DOM efficiency to x2 the default (to procude upgrade style simulation)
     # options.EFFICIENCY = 2.4
 
-    icemodel_path = os.path.join(os.path.expandvars("$I3_SRC/ice-models/resources/models/"), options.ICEMODEL)
+    icemodel_path = os.path.join(os.path.expandvars("$I3_SRC/ice-models/resources/models/ICEMODEL/"), options.ICEMODEL)
     print("Ice model {}".format(icemodel_path))
     print("DOM efficiency: {}".format(options.EFFICIENCY))
     print("Setting cross energy: {}".format(float(options.CROSSENERGY), "GeV"))
@@ -373,7 +372,7 @@ def main():
     tray.AddModule("I3Reader", "reader", FilenameList=infiles)
     tray.AddModule("I3GeometryDecomposer", "I3ModuleGeoMap")
 
-    gcd_file = dataio.I3File(gcdfile)
+#     gcd_file = dataio.I3File(gcdfile)
 
     tray.AddModule("Rename", keys=["I3MCTree", "I3MCTree_preMuonProp"])
     tray.AddSegment(segments.PropagateMuons, "PropagateMuons", RandomService=randomService)
@@ -392,11 +391,12 @@ def main():
         MCTreeName="I3MCTree",
         OutputMCTreeName="I3MCTree_clsim",
         FlasherInfoVectName=None,
-        MMCTrackListName="MMCTrackList",
+        #MMCTrackListName="MMCTrackList",
         PhotonSeriesName=photon_series,
-        ParallelEvents=1000,
+#         ParallelEvents=1000,
         RandomService=randomService,
         IceModelLocation=icemodel_path,
+        UseI3PropagatorService=False,
         UseGeant4=True,
         CrossoverEnergyEM=0.1,
         CrossoverEnergyHadron=float(options.CROSSENERGY),
@@ -407,14 +407,15 @@ def main():
         DoNotParallelize=False,
         DOMOversizeFactor=1.0,
         UnshadowedFraction=options.EFFICIENCY,
-        GCDFile=gcd_file,
-        ExtraArgumentsToI3CLSimModule={
-            # "UseHardcodedDeepCoreSubdetector":True, #may save some GPU memory
-            # "EnableDoubleBuffering":True,
-            "DoublePrecision": False,  # will impact performance if true
+        GCDFile=gcdfile,
+#       ExtraArgumentsToI3CLSimModule={this is the default value "DoublePrecision": False,  # will impact performance if true
+#         "StatisticsName": "clsim_stats",
+#             "IgnoreDOMIDs": [],
+#         },
+        ExtraArgumentsToI3PhotonPropagationClientModule={
             "StatisticsName": "clsim_stats",
-            "IgnoreDOMIDs": [],
         },
+
     )
 
     # Tested that all frames go through CLSIM. Removing the ones without any hits to save space.
@@ -427,6 +428,8 @@ def main():
 
     SkipKeys = [
         "I3MCTree_bak",
+        "MCPESeriesMap",
+        "MCPESeriesMapParticleIDMap",
         ]
 
     if osg == "True":
@@ -487,7 +490,7 @@ def main():
         copy_to_NPX(outfile)
         copy_to_NPX(outfile_hdf5)
 
-    t1 = time.clock()
+    t1 = time.perf_counter() #time.clock()
 
     print("Time it took: {}s".format(t1-t0))
     print('done ...')

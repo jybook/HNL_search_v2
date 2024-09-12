@@ -1,5 +1,5 @@
 #!/bin/sh /cvmfs/icecube.opensciencegrid.org/users/BeyondStandardModel/bsm-py2-v3.1.1-1/icetray-start-standard
-#METAPROJECT /data/user/lfischer/software/oscnext_hnl/build/
+#METAPROJECT /n/holylfs05/LABS/arguelles_delgado_lab/Everyone/jbook/i3/build
 
 
 ### The Level 1 simulation processing script ###
@@ -73,11 +73,11 @@ HDF5_KEYS = [
     "casc1_true_azimuth",
     "casc1_true_time",
     "nan_decay_energy",
-    # weights
-    "LeptonInjectorWeight",
-    "LifetimeWeight_1e-03",
-    "OneWeight",
-    "ReferenceWeight_1e-03",
+#     # weights
+#     "LeptonInjectorWeight",
+#     "LifetimeWeight_1e-03",
+#     "OneWeight",
+#     "ReferenceWeight_1e-03",
 ]
 
 # remove duplicates from the HDF5 keys
@@ -366,7 +366,7 @@ def main(options, stats={}):
         outfile_temp = str(os.getcwd() + "/" + outfile.split("/")[-1])
     else:
         temp_dir = os.path.join(
-            "/data/ana/BSM/HNL/MC/scripts/temp/", options["identifier_out"]
+            "/n/holylfs05/LABS/arguelles_delgado_lab/Lab/HNL_MC/temp/", options["identifier_out"]
         )
         if not os.path.exists(temp_dir):
             os.makedirs(temp_dir)
