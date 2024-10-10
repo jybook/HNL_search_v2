@@ -1,15 +1,18 @@
 default-storage-provider: fs
 local-storage-prefix: $SCRATCH/arguelles_delgado_lab/Users/$USER/
 
-restart-times: 2
+restart-times: 0
 cores: 8
 jobs: 100
-latency-wait: 120
+latency-wait: 120 
 keep-going: True
 rerun-incomplete: True
 printshellcmds: True
 use-conda: True
 conda-frontend: mamba
+use-singularity: True
+singularity-args: "--bind /etc/slurm:/etc/slurm /scratch:/scratch"
+ #Use this to pass arguments to singularity when running
 
 executor: slurm
 default-resources: 
