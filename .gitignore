@@ -1,2 +1,8 @@
 *.ipynb_checkpoints
 *.pyc
+continuous_mass_testing
+*.csv
+snakemake/.config
+snakemake/.snakemake/*
+reconstruction/gnn_scripts/logs*
+reconstruction/gnn_scripts/wandb/*
